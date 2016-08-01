@@ -11,6 +11,7 @@ en:
       newtoken: "Generate new token"
     checkga:
       user:
+        remember_my_token: "Remember my token number for a day?"
         signed_in: "Signed in successfully from token."
         error: "Sign in failed"
     displayqr:
