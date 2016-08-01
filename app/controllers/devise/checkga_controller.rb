@@ -23,7 +23,7 @@ class Devise::CheckgaController < Devise::SessionsController
         warden.manager._run_callbacks(:after_set_user, resource, warden, {:event => :authentication})
         respond_with resource, :location => after_sign_in_path_for(resource)
 
-        set_remember_token(resource) if params[resource_name]['remember_gauth_token'] == '1'
+        set_remember_gauth_token(resource) if remember_gauth_token?(resource)
       else
         set_flash_message(:error, :error)
         redirect_to send(devise_resource_sign_in_path)
@@ -45,12 +45,17 @@ class Devise::CheckgaController < Devise::SessionsController
     "new_#{resource_name}_session_path"
   end
 
-  def set_remember_token(resource)
-    if resource.set_remember_gauth_token_set_at
+  def remember_gauth_token?(resource)
+    resource.class.ga_remembertime && params[resource_name]['remember_gauth_token'] == '1'
+  end
+
+  def set_remember_gauth_token(resource)
+    expiry_time = resource.class.ga_remembertime.from_now
+    if resource.set_remember_gauth_token(expiry_time)
       cookies.signed[:gauth] = {
         value: resource.email << ',' << Time.now.to_i.to_s,
         secure: !(Rails.env.test? || Rails.env.development?),
-        expires: 1.day.from_now
+        expires: expiry_time
       }
     end
   end

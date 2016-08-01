@@ -29,8 +29,9 @@ module Devise # :nodoc:
           self.gauth_tmp
         end
 
-        def set_remember_gauth_token_set_at
+        def set_remember_gauth_token(expiry_time)
           self.remember_gauth_token_set_at = Time.now.utc
+          self.remember_gauth_token_expires_at = expiry_time
           self.save(validate: false)
         end
 
