@@ -29,9 +29,9 @@ module Devise # :nodoc:
           self.gauth_tmp
         end
 
-        def set_remember_gauth_token(token)
+        def set_remember_gauth_token_set_at
           self.remember_gauth_token_set_at = Time.now.utc
-          save(validate: false)
+          self.save(validate: false)
         end
 
         def validate_token(token)
