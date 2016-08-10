@@ -21,6 +21,10 @@ module DeviseGoogleAuthenticator::Patches
           tmpid = resource.assign_tmp #assign a temporary key and fetch it
           warden.logout #log the user out
 
+          # Add devise_remember_me option to the session to make it available in Devise::CheckgaController#update
+          remember_me = params[resource_name]['remember_me']
+          session[:devise_remember_me] = remember_me if remember_me && resource.respond_to?(:remember_me)
+
           #we head back into the checkga controller with the temporary id
           #Because the model used for google auth may not always be the same, and may be a sub-model, the eval will evaluate the appropriate path name
           #This change addresses https://github.com/AsteriskLabs/devise_google_authenticator/issues/7
@@ -31,7 +35,6 @@ module DeviseGoogleAuthenticator::Patches
           sign_in(resource_name, resource)
           respond_with resource, :location => after_sign_in_path_for(resource)
         end
-
       end
     end
   end

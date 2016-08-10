@@ -23,6 +23,7 @@ class Devise::CheckgaController < Devise::SessionsController
         warden.manager._run_callbacks(:after_set_user, resource, warden, {:event => :authentication})
         respond_with resource, :location => after_sign_in_path_for(resource)
 
+        set_remember_me(resource) if session[:devise_remember_me] == '1'
         set_remember_gauth_token(resource) if remember_gauth_token?(resource)
       else
         set_flash_message(:error, :error)
@@ -58,5 +59,9 @@ class Devise::CheckgaController < Devise::SessionsController
         expires: expiry_time
       }
     end
+  end
+
+  def set_remember_me(resource)
+    Devise::Hooks::Proxy.new(warden).remember_me(resource)
   end
 end
