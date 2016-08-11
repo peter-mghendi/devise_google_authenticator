@@ -19,17 +19,16 @@ class Devise::CheckgaController < Devise::SessionsController
     if not resource.nil?
       if resource.validate_token(params[resource_name]['gauth_token'].to_i)
         set_flash_message(:notice, :signed_in) if is_navigational_format?
-        sign_in(resource_name,resource)
+        resource.remember_me = resource.respond_to?(:remember_me) && session[:devise_remember_me] == '1'
+        sign_in(resource_name, resource)
         warden.manager._run_callbacks(:after_set_user, resource, warden, {:event => :authentication})
         respond_with resource, :location => after_sign_in_path_for(resource)
 
-        set_remember_me(resource) if session[:devise_remember_me] == '1'
         set_remember_gauth_token(resource) if remember_gauth_token?(resource)
       else
         set_flash_message(:error, :error)
         redirect_to send(devise_resource_sign_in_path)
       end
-
     else
       set_flash_message(:error, :error)
       redirect_to :root
@@ -59,9 +58,5 @@ class Devise::CheckgaController < Devise::SessionsController
         expires: expiry_time
       }
     end
-  end
-
-  def set_remember_me(resource)
-    Devise::Hooks::Proxy.new(warden).remember_me(resource)
   end
 end
