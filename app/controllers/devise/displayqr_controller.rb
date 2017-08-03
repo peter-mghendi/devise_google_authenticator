@@ -18,7 +18,7 @@ class Devise::DisplayqrController < DeviseController
   def update
     if resource.gauth_tmp != params[resource_name]['tmpid'] || !resource.validate_token(params[resource_name]['gauth_token'].to_i)
       set_flash_message(:error, :invalid_token)
-      redirect_to action: :show and return
+      render :show and return
     end
 
     if resource.set_gauth_enabled(params[resource_name]['gauth_enabled'])
