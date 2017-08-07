@@ -1,4 +1,5 @@
 class Devise::DisplayqrController < DeviseController
+  layout :dynamic_layout
   prepend_before_filter :authenticate_scope!, :only => [:show, :update, :refresh]
 
   include Devise::Controllers::Helpers
@@ -17,13 +18,19 @@ class Devise::DisplayqrController < DeviseController
   def update
     if resource.gauth_tmp != params[resource_name]['tmpid'] || !resource.validate_token(params[resource_name]['gauth_token'].to_i)
       set_flash_message(:error, :invalid_token)
-      redirect_to action: :show and return
+      render :show and return
     end
 
     if resource.set_gauth_enabled(params[resource_name]['gauth_enabled'])
       set_flash_message :notice, (resource.gauth_enabled? ? :enabled : :disabled)
       sign_in scope, resource, :bypass => true
-      redirect_to stored_location_for(scope) || after_sign_in_path_for(resource)
+      if params[resource_name]['invalidate_session'] == '1'
+        sign_out resource
+        redirect_to new_user_session_path
+      else
+        redirect_to stored_location_for(scope) || after_sign_in_path_for(resource)
+        flash[:notice] = 'Congratulations! You are now registered for 2-factor authentication. You will be required to enter the code next time you log in.' if resource.is_a?(User)
+      end
     else
       render :show
     end
@@ -59,5 +66,13 @@ class Devise::DisplayqrController < DeviseController
 
   def strong_parameters_enabled?
     defined?(ActionController::StrongParameters)
+  end
+
+  def dynamic_layout
+    if resource.is_a?(User)
+      'application'
+    elsif resource.is_a?(SaasAdmin)
+      'k2admin'
+    end
   end
 end
