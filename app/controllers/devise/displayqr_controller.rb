@@ -70,10 +70,8 @@ class Devise::DisplayqrController < DeviseController
 
   def dynamic_layout
     if resource.is_a?(User)
-      puts '++++++++++++++++++++++++++++++++++++'
       'application'
     elsif resource.is_a?(SaasAdmin)
-      puts '************************************'
       'k2admin'
     end
   end
