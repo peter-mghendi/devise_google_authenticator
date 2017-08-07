@@ -1,5 +1,5 @@
 class Devise::DisplayqrController < DeviseController
-  layout 'application'
+  layout :dynamic_layout
   prepend_before_filter :authenticate_scope!, :only => [:show, :update, :refresh]
 
   include Devise::Controllers::Helpers
@@ -66,5 +66,15 @@ class Devise::DisplayqrController < DeviseController
 
   def strong_parameters_enabled?
     defined?(ActionController::StrongParameters)
+  end
+
+  def dynamic_layout
+    if resource.is_a?(User)
+      puts '++++++++++++++++++++++++++++++++++++'
+      'application'
+    elsif resource.is_a?(SaasAdmin)
+      puts '************************************'
+      'k2admin'
+    end
   end
 end
